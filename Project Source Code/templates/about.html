@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+  <div class="card shadow-sm p-5">
+
+    <h2 class="mb-4 text-primary">About the Project</h2>
+
+    <p>
+      Healthcare fraud poses a serious threat to the integrity of insurance systems, costing billions each year due to false claims, inflated procedures, and billing for unrendered services. Traditional fraud detection methods—like manual audits and rule-based systems—are often inadequate in uncovering sophisticated or evolving fraud patterns. This project leverages machine learning to provide a scalable and adaptive solution, using classification models such as Random Forests and Gradient Boosting to identify anomalies in health insurance claims data. These models are trained on preprocessed, anonymized datasets, and are capable of detecting subtle fraud indicators that may go unnoticed by static rules.
+    </p>
+
+    <p>
+      The system integrates automated data preprocessing, anomaly detection through EDA, and model benchmarking, all supported by a user-friendly web interface. It provides both single and batch fraud prediction modes, allowing insurance providers to upload claim files and receive analysis in real-time. To ensure compliance with GDPR and HIPAA, sensitive data such as patient identifiers is anonymized, and handling protocols are clearly documented. This project aims to improve fraud detection accuracy, minimize financial losses, and empower ethical decision-making through transparent and interpretable AI-driven insights. Developed by <strong>Kaustubh Bhale - N1325700</strong>, the application stands as a practical and scalable approach to modern healthcare fraud detection.
+    </p>
+
+  </div>
+</div>
+{% endblock %}

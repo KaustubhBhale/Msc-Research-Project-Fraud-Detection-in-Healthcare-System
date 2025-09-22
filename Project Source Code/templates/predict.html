@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Form Card -->
+  <div class="card border-0 shadow-sm mb-5" style="border-radius: 12px;">
+    <div class="card-header bg-primary bg-opacity-10 border-0 py-3">
+      <h2 class="mb-0 d-flex align-items-center">
+        <i class="bi bi-shield-check text-primary me-2"></i> Healthcare Fraud Prediction
+      </h2>
+    </div>
+    <div class="card-body p-4">
+      <form method="POST" action="{{ url_for('predict_fraud_page') }}">
+        <div class="row g-4">
+          <!-- Provider Dropdown-->
+          <div class="col-md-6">
+    <label for="Provider" class="form-label fw-bold">
+        <i class="bi bi-hospital text-primary me-2"></i> Provider
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="Healthcare provider submitting the claim"></i>
+    </label>
+    <select class="form-select" id="Provider" name="Provider" required>
+        {% for provider in providers %}
+        <option value="{{ provider }}" {% if loop.first %}selected{% endif %}>{{ provider }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- InscClaimAmtReimbursed Field -->
+          <div class="col-md-6">
+            <label for="InscClaimAmtReimbursed" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> InscClaimAmtReimbursed
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Amount reimbursed by insurance for this claim"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="InscClaimAmtReimbursed" name="InscClaimAmtReimbursed" required>
+          </div>
+
+          <!-- AttendingPhysician Dropdown -->
+          <div class="col-md-6">
+    <label for="AttendingPhysician" class="form-label fw-bold">
+        <i class="bi bi-person text-primary me-2"></i> Attending Physician
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="Primary physician responsible for patient care"></i>
+    </label>
+    <select class="form-select" id="AttendingPhysician" name="AttendingPhysician" required>
+        {% for physician in attending_physicians %}
+        <option value="{{ physician }}" {% if loop.first %}selected{% endif %}>{{ physician }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- OperatingPhysician Dropdown -->
+<div class="col-md-6">
+    <label for="OperatingPhysician" class="form-label fw-bold">
+        <i class="bi bi-person text-primary me-2"></i> Operating Physician
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="Physician who performed surgical procedures"></i>
+    </label>
+    <select class="form-select" id="OperatingPhysician" name="OperatingPhysician" required>
+        {% for physician in operating_physicians %}
+        <option value="{{ physician }}" {% if loop.first %}selected{% endif %}>{{ physician }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- OtherPhysician Field -->
+          <div class="col-md-6">
+    <label for="OtherPhysician" class="form-label fw-bold">
+        <i class="bi bi-person text-primary me-2"></i> Other Physician
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="Other physicians involved in patient care"></i>
+    </label>
+    <select class="form-select" id="OtherPhysician" name="OtherPhysician" required>
+        {% for physician in other_physicians %}
+        <option value="{{ physician }}" {% if loop.first %}selected{% endif %}>{{ physician }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- DeductibleAmtPaid Field -->
+          <div class="col-md-6">
+            <label for="DeductibleAmtPaid" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> DeductibleAmtPaid
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Amount paid by patient as deductible"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="DeductibleAmtPaid" name="DeductibleAmtPaid" required>
+          </div>
+
+          <!-- Hospitalization_Duration Field -->
+          <div class="col-md-6">
+            <label for="Hospitalization_Duration" class="form-label fw-bold">
+              <i class="bi bi-calendar text-primary me-2"></i> Hospitalization Duration (days)
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Number of days patient was hospitalized"></i>
+            </label>
+            <input type="number" class="form-control" id="Hospitalization_Duration" name="Hospitalization_Duration" required>
+          </div>
+
+          <!-- Inpatient_or_Outpatient Field -->
+          <div class="col-md-6">
+            <label for="Inpatient_or_Outpatient" class="form-label fw-bold">
+              <i class="bi bi-hospital-fill text-primary me-2"></i> Inpatient or Outpatient
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Type of medical service provided"></i>
+            </label>
+            <select class="form-select" id="Inpatient_or_Outpatient" name="Inpatient_or_Outpatient" required>
+              <option value="Inpatient">Inpatient</option>
+              <option value="Outpatient">Outpatient</option>
+            </select>
+          </div>
+
+          <!-- Gender Field -->
+          <div class="col-md-6">
+            <label for="Gender" class="form-label fw-bold">
+              <i class="bi bi-gender-ambiguous text-primary me-2"></i> Gender
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Patient's gender"></i>
+            </label>
+            <select class="form-select" id="Gender" name="Gender" required>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </div>
+
+          <!-- Race dropdown -->
+          <!-- Race Dropdown -->
+<div class="col-md-6">
+    <label for="Race" class="form-label fw-bold">
+        <i class="bi bi-person-circle text-primary me-2"></i> Race
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="Patient's race/ethnicity (1-5)"></i>
+    </label>
+    <select class="form-select" id="Race" name="Race" required>
+        {% for race in race_options %}
+        <option value="{{ race }}" {% if loop.first %}selected{% endif %}>{{ race }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- RenalDiseaseIndicator Field -->
+          <div class="col-md-6">
+            <label for="RenalDiseaseIndicator" class="form-label fw-bold">
+              <i class="bi bi-heart-pulse text-primary me-2"></i> RenalDiseaseIndicator
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Whether patient has chronic kidney disease"></i>
+            </label>
+            <select class="form-select" id="RenalDiseaseIndicator" name="RenalDiseaseIndicator" required>
+              <option value="Y">Yes</option>
+              <option value="N">No</option>
+            </select>
+          </div>
+
+          <!-- State dropdown -->
+        <div class="col-md-6">
+    <label for="State" class="form-label fw-bold">
+        <i class="bi bi-geo-alt text-primary me-2"></i> State
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="State where service was provided"></i>
+    </label>
+    <select class="form-select" id="State" name="State" required>
+        {% for state in states %}
+        <option value="{{ state }}" {% if loop.first %}selected{% endif %}>{{ state }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- County dropdown -->
+          <div class="col-md-6">
+    <label for="County" class="form-label fw-bold">
+        <i class="bi bi-geo-alt text-primary me-2"></i> County
+        <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip"
+           data-bs-placement="top" title="County where service was provided"></i>
+    </label>
+    <select class="form-select" id="County" name="County" required>
+        {% for county in counties %}
+        <option value="{{ county }}" {% if loop.first %}selected{% endif %}>{{ county }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+          <!-- OPAnnualReimbursementAmt Field -->
+          <div class="col-md-6">
+            <label for="OPAnnualReimbursementAmt" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> OPAnnualReimbursementAmt
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Annual outpatient reimbursement amount"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="OPAnnualReimbursementAmt" name="OPAnnualReimbursementAmt" required>
+          </div>
+
+          <!-- OPAnnualDeductibleAmt Field -->
+          <div class="col-md-6">
+            <label for="OPAnnualDeductibleAmt" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> OPAnnualDeductibleAmt
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Annual outpatient deductible amount"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="OPAnnualDeductibleAmt" name="OPAnnualDeductibleAmt" required>
+          </div>
+
+          <!-- Patient_Age Field -->
+          <div class="col-md-6">
+            <label for="Patient_Age" class="form-label fw-bold">
+              <i class="bi bi-person-vcard text-primary me-2"></i> Patient Age
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Age of patient at time of service"></i>
+            </label>
+            <input type="number" class="form-control" id="Patient_Age" name="Patient_Age" required>
+          </div>
+
+          <!-- isDead Field -->
+          <div class="col-md-6">
+            <label for="isDead" class="form-label fw-bold">
+              <i class="bi bi-heartbreak text-primary me-2"></i> Is Dead
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Whether patient is deceased"></i>
+            </label>
+            <select class="form-select" id="isDead" name="isDead" required>
+              <option value="Y">Yes</option>
+              <option value="N">No</option>
+            </select>
+          </div>
+
+          <!-- TotalClaimAmount Field -->
+          <div class="col-md-6">
+            <label for="TotalClaimAmount" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> TotalClaimAmount
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Total amount claimed for services"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="TotalClaimAmount" name="TotalClaimAmount" required>
+          </div>
+
+          <!-- TotalReimbursement Field -->
+          <div class="col-md-6">
+            <label for="TotalReimbursement" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> TotalReimbursement
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Total amount reimbursed by insurance"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="TotalReimbursement" name="TotalReimbursement" required>
+          </div>
+
+          <!-- TotalDeductible Field -->
+          <div class="col-md-6">
+            <label for="TotalDeductible" class="form-label fw-bold">
+              <i class="bi bi-currency-dollar text-primary me-2"></i> TotalDeductible
+              <i class="bi bi-question-circle text-muted ms-1" data-bs-toggle="tooltip" title="Total deductible amount paid by patient"></i>
+            </label>
+            <input type="number" step="0.01" class="form-control" id="TotalDeductible" name="TotalDeductible" required>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="col-12 text-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-rocket-takeoff me-2"></i> Predict
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Prediction Result -->
+  <!-- Prediction Result Section -->
+{% if prediction is defined %}
+<div class="card mt-4">
+    <div class="card-body">
+        <h4>Prediction Result</h4>
+        <p>Fraud Detected: {{ 'Yes' if prediction == 1 else 'No' }}</p>
+        <p>Probability: {{ "%.2f"|format(probability * 100) }}%</p>
+    </div>
+</div>
+{% endif %}
+</div>
+
+<!-- Initialize Bootstrap tooltips -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  })
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<style>
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #212529;
+  }
+  .container {
+    max-width: 800px;
+  }
+  .card {
+    border-radius: 12px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+  }
+  .card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+  }
+  .card-body {
+    padding: 2rem;
+  }
+  .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #212529;
+  }
+  .form-control, .form-select {
+    border-radius: 8px;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  .btn-primary {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+  }
+  .progress {
+    border-radius: 8px;
+    background-color: #e9ecef;
+  }
+  .progress-bar {
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: width 0.6s ease;
+  }
+  h2, h3 {
+    font-weight: 600;
+  }
+  h2 {
+    font-size: 1.75rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+  .text-primary {
+    color: #0d6efd !important;
+  }
+  .text-muted {
+    color: #6c757d !important;
+  }
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+    .form-label {
+      font-size: 0.85rem;
+    }
+    .form-control, .form-select {
+      font-size: 0.85rem;
+      padding: 0.6rem 0.9rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+    }
+    h3 {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+{% endblock %}

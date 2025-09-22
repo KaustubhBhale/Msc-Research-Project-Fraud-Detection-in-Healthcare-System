@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Healthcare Fraud Detection</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <div class="bg-primary bg-opacity-10 pt-2 pb-5">
+    <div class="container py-4 text-center">
+      <h1 class="display-4 fw-bold mb-4">
+        <i class="bi bi-shield-check text-primary"></i> Healthcare Fraud Detection
+      </h1>
+      <p class="lead fs-4 mb-4">Empowering healthcare providers to identify and reduce fraudulent claim activities using intelligent ML solutions.</p>
+      <div class="d-flex gap-3 justify-content-center">
+        <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg px-4">
+          <i class="bi bi-rocket-takeoff me-2"></i>Get Started
+        </a>
+        <a href="#features" class="btn btn-outline-primary btn-lg px-4"
+           data-bs-toggle="tooltip"
+           data-bs-placement="bottom"
+           title="Discover the features and capabilities of the fraud detection system">
+          <i class="bi bi-info-circle me-2"></i>Learn More
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container my-5" id="features">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold mb-3">Key Features</h2>
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <p class="lead text-muted">Our comprehensive fraud detection platform combines advanced machine learning with intuitive visualization tools to protect your organization from fraudulent claims.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Card 1: Predict Fraud -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-search-heart fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">Predict Fraud</h5>
+            <p class="card-text text-muted">
+              Enter patient and claim information to instantly detect suspicious patterns using our trained LightGBM model. Supports both single and batch input.
+            </p>
+            <a href="{{ url_for('predict') }}" class="btn btn-outline-primary mt-2">
+              Try Now <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Model Metrics -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-graph-up-arrow fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">Model Metrics</h5>
+            <p class="card-text text-muted">
+              Visualize key evaluation metrics such as ROC Curve, Confusion Matrix, Precision-Recall, and AUC to assess the performance of the fraud detection model.
+            </p>
+            <a href="{{ url_for('metrics') }}" class="btn btn-outline-primary mt-2">
+              View Metrics <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Data Exploration -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-bar-chart-line fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">Data Exploration</h5>
+            <p class="card-text text-muted">
+              Explore demographic and clinical data insights, identify anomalies and trends in claim submissions through interactive charts and graphs.
+            </p>
+            <a href="{{ url_for('explore') }}" class="btn btn-outline-primary mt-2">
+              Explore Data <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Upload & Batch Analysis -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-upload fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">Upload & Batch Analysis</h5>
+            <p class="card-text text-muted">
+              Upload CSV files containing multiple claims to get a batch prediction report that flags high-risk records efficiently, saving manual effort.
+            </p>
+            <a href="{{ url_for('upload') }}" class="btn btn-outline-primary mt-2">
+              Upload Files <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5: Reporting & Export -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-file-earmark-text fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">Reporting & Export</h5>
+            <p class="card-text text-muted">
+              Generate downloadable reports (PDF/CSV) of prediction results and analysis, including fraud probabilities, summary statistics, and visual charts.
+            </p>
+            <a href="{{ url_for('report') }}" class="btn btn-outline-primary mt-2">
+              Generate Reports <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 6: About -->
+      <div class="col-md-4">
+        <div class="card h-100 shadow-lg border border-primary-subtle">
+          <div class="card-body text-center p-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle d-inline-block mb-3">
+              <i class="bi bi-info-circle fs-1 text-primary"></i>
+            </div>
+            <h5 class="card-title fw-bold">About the App</h5>
+            <p class="card-text text-muted">
+              Learn how this system was built, the models used, the data involved, and the overall goal of reducing healthcare system abuse using AI.
+            </p>
+            <a href="{{ url_for('about') }}" class="btn btn-outline-primary mt-2">
+              Learn More <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="bg-light py-5">
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-3">
+          <div class="display-5 fw-bold text-primary">98%</div>
+          <p class="text-muted">Accuracy</p>
+        </div>
+        <div class="col-md-3">
+          <div class="display-5 fw-bold text-primary">10K+</div>
+          <p class="text-muted">Claims Analyzed</p>
+        </div>
+        <div class="col-md-3">
+          <div class="display-5 fw-bold text-primary">95%</div>
+          <p class="text-muted">Precision</p>
+        </div>
+        <div class="col-md-3">
+          <div class="display-5 fw-bold text-primary">24/7</div>
+          <p class="text-muted">Monitoring</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Note -->
+  <div class="bg-dark text-white text-center py-3">
+    &copy; 2025 Healthcare Fraud Detection. All rights reserved.
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script>
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  </script>
+</body>
+</html>

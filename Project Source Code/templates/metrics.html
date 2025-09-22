@@ -1,0 +1,41 @@
+<!-- templates/metrics.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Model Metrics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='static/css/styles.css') }}">
+</head>
+<body>
+    <h1>Model Evaluation Metrics</h1>
+
+    <p><strong>Overall Accuracy:</strong> {{ metrics['accuracy'] | round(4) }}</p>
+    <p><strong>ROC AUC Score:</strong> {{ metrics['roc_auc'] | round(4) }}</p>
+    <p><strong>Average Precision Score:</strong> {{ metrics['average_precision'] | round(4) }}</p>
+
+    <h2>Confusion Matrix</h2>
+    <img src="{{ url_for('static', filename='metrics/confusion_matrix.png') }}" alt="Confusion Matrix">
+
+    <h2>ROC Curve</h2>
+    <img src="{{ url_for('static', filename='metrics/roc_curve.png') }}" alt="ROC Curve">
+
+    <h2>Precision-Recall Curve</h2>
+    <img src="{{ url_for('static', filename='metrics/pr_curve.png') }}" alt="PR Curve">
+
+    <h2>Classification Report</h2>
+    <table border="1">
+        <tr>
+            <th>Label</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Support</th>
+        </tr>
+        {% for label, values in metrics['report'].items() if label in ['0', '1'] %}
+        <tr>
+            <td>{{ label }}</td>
+            <td>{{ values['precision'] | round(4) }}</td>
+            <td>{{ values['recall'] | round(4) }}</td>
+            <td>{{ values['f1-score'] | round(4) }}</td>
+            <td>{{ values['support'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4 py-5">
+  <!-- Dashboard Title -->
+  <div class="text-center mb-5">
+    <h1 class="display-5 fw-bold text-primary">Healthcare Fraud Analytics Dashboard</h1>
+    <p class="text-muted fs-5">Comprehensive analysis of provider claims and potential fraudulent activity</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row mb-5 g-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center p-4">
+          <div class="flex-grow-1">
+            <h6 class="text-uppercase text-muted small fw-bold mb-2">Providers</h6>
+            <h3 class="mb-0 text-primary">{{ total_unique_providers or 0 }}</h3>
+          </div>
+          <div class="bg-primary bg-opacity-10 p-3 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0d6efd" class="bi bi-people" viewBox="0 0 16 16">
+              <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center p-4">
+          <div class="flex-grow-1">
+            <h6 class="text-uppercase text-muted small fw-bold mb-2">Fraud Cases</h6>
+            <h3 class="mb-0 text-danger">{{ fraud_counts.get('Yes', 0) }}</h3>
+          </div>
+          <div class="bg-danger bg-opacity-10 p-3 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+              <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z"/>
+              <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center p-4">
+          <div class="flex-grow-1">
+            <h6 class="text-uppercase text-muted small fw-bold mb-2">Valid Claims</h6>
+            <h3 class="mb-0 text-success">{{ fraud_counts.get('No', 0) }}</h3>
+          </div>
+          <div class="bg-success bg-opacity-10 p-3 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#198754" class="bi bi-check-circle" viewBox="0 0 16 16">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+              <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body d-flex align-items-center p-4">
+          <div class="flex-grow-1">
+            <h6 class="text-uppercase text-muted small fw-bold mb-2">Avg. Claim</h6>
+            <h3 class="mb-0 text-warning">${{ "{:,.2f}".format(avg_claim or 0) }}</h3>
+          </div>
+          <div class="bg-warning bg-opacity-10 p-3 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ffc107" class="bi bi-cash-stack" viewBox="0 0 16 16">
+              <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1zm7 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+              <path d="M0 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1zm3 0a2 2 0 0 1-2 2v4a2 2 0 0 1 2 2h10a2 2 0 0 1 2-2V7a2 2 0 0 1-2-2z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Statistics Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+          <h4 class="mb-0 d-flex align-items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0d6efd" class="bi bi-pie-chart me-2" viewBox="0 0 16 16">
+              <path d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793zm1 0V7.5h6.482A7 7 0 0 0 8.5 1.018M14.982 8.5H8.207l-4.79 4.79A7 7 0 0 0 14.982 8.5M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8"/>
+            </svg>
+            Summary Statistics
+          </h4>
+        </div>
+        <div class="card-body">
+          <!-- Fraud Distribution -->
+          <div class="mb-4">
+            <h5 class="fw-bold text-muted mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#6c757d" class="bi bi-percent me-2" viewBox="0 0 16 16">
+                <path d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0M4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5m7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+              </svg>
+              Fraud Distribution
+            </h5>
+            <div class="text-center mb-2">
+              <span class="fw-bold text-danger">{{ "{:.1f}%".format((fraud_percentages.get('Yes', 0) * 100) if fraud_percentages else 0) }} Fraud</span>
+              <span class="mx-3">|</span>
+              <span class="fw-bold text-success">{{ "{:.1f}%".format(100 - (fraud_percentages.get('Yes', 0) * 100) if fraud_percentages else 0) }} Valid</span>
+            </div>
+            <div class="progress" style="height: 36px;">
+              <div class="progress-bar bg-danger" role="progressbar" style="width: {{ (fraud_percentages.get('Yes', 0) * 100) if fraud_percentages else 0 }}%;" aria-valuenow="{{ (fraud_percentages.get('Yes', 0) * 100) if fraud_percentages else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{ (fraud_percentages.get('No', 0) * 100) if fraud_percentages else 0 }}%;" aria-valuenow="{{ (fraud_percentages.get('No', 0) * 100) if fraud_percentages else 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+          <!-- Claim Statistics -->
+          <div>
+            <h5 class="fw-bold text-muted mb-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#6c757d" class="bi bi-file-earmark-text me-2" viewBox="0 0 16 16">
+                <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/>
+              </svg>
+              Claim Statistics
+            </h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card bg-light border-0 h-100">
+                  <div class="card-body">
+                    <h6 class="text-muted small fw-bold mb-2">Total Claims</h6>
+                    <h4 class="mb-0">{{ total_claims or 0 }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card bg-light border-0 h-100">
+                  <div class="card-body">
+                    <h6 class="text-muted small fw-bold mb-2">Highest Claim</h6>
+                    <h4 class="mb-0">${{ "{:,.2f}".format(highest_claim or 0) }}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Provider Fraud Analysis Section -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 d-flex align-items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" class="bi bi-search me-2" viewBox="0 0 16 16">
+                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+              </svg>
+              Provider Fraud Analysis
+            </h4>
+            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-10-circle me-1" viewBox="0 0 16 16">
+                <path d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3z"/>
+              </svg>
+              Min 10 claims
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th class="border-0 text-uppercase text-muted small fw-bold">Provider</th>
+                  <th class="border-0 text-end text-uppercase text-muted small fw-bold">Cases</th>
+                  <th class="border-0 text-end text-uppercase text-muted small fw-bold">Fraud</th>
+                  <th class="border-0 text-uppercase text-muted small fw-bold" style="width: 150px;">Fraud Rate</th>
+                  <th class="border-0 text-end text-uppercase text-muted small fw-bold">Avg. Claim</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in top_providers %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="bg-primary bg-opacity-10 p-2 rounded me-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#0d6efd" class="bi bi-hospital" viewBox="0 0 16 16">
+                          <path d="M8.5 5.034v1.1l.953-.55.5.867L9 7l.953.55-.5.866-.953-.55v1.1h-1v-1.1l-.953.55-.5-.866L7 7l-.953-.55.5-.866.953.55v-1.1zM13.25 9a.25.25 0 0 0-.25.25v.5c0 .138.112.25.25.25h.5a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25zM13 11.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25zm.25 1.75a.25.25 0 0 0-.25.25v.5c0 .138.112.25.25.25h.5a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25zm-11-4a.25.25 0 0 0-.25.25v.5c0 .138.112.25.25.25h.5A.25.25 0 0 0 3 9.75v-.5A.25.25 0 0 0 2.75 9zm0 2a.25.25 0 0 0-.25.25v.5c0 .138.112.25.25.25h.5a.25.25 0 0 0 .25-.25v-.5a.25.25 0 0 0-.25-.25zM2 13.25a.25.25 0 0 1 .25-.25h.5a.25.25 0 0 1 .25.25v.5a.25.25 0 0 1-.25.25h-.5a.25.25 0 0 1-.25-.25z"/>
+                          <path d="M5 1a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1a1 1 0 0 1 1 1v4h3a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h3V3a1 1 0 0 1 1-1zm2 14h2v-3H7zm3 0h1V3H5v12h1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1zm0-14H6v1h4zm2 3v7h3V8h-3zm-8 7V8H1v7z"/>
+                        </svg>
+                      </div>
+                      <h6 class="mb-0">{{ row.Provider }}</h6>
+                    </div>
+                  </td>
+                  <td class="text-end">{{ row.total_cases }}</td>
+                  <td class="text-end">{{ row.fraud_cases }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ row.fraud_rate * 100 }}%;" aria-valuenow="{{ row.fraud_rate * 100 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      <small class="fw-bold">{{ "{:.1f}%".format(row.fraud_rate * 100) }}</small>
+                    </div>
+                  </td>
+                  <td class="text-end fw-bold">${{ "{:,.2f}".format(row.avg_claim_amount or 0) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="5" class="text-center py-5 text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="#dee2e6" class="bi bi-database mb-3" viewBox="0 0 16 16">
+                      <path d="M8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1m0 7c-1.573 0-3.022.289-4.096.777C2.875 9.245 2 9.993 2 11s.875 1.755 1.904 2.223C4.978 13.711 6.427 14 8 14s3.022-.289 4.096-.777C13.125 12.755 14 12.007 14 11s-.875-1.755-1.904-2.223C11.022 8.289 9.573 8 8 8m0 7c-1.573 0-3.022.289-4.096.777C2.875 16.245 2 16.993 2 18s.875 1.755 1.904 2.223C4.978 20.711 6.427 21 8 21s3.022-.289 4.096-.777C13.125 19.755 14 19.007 14 18s-.875-1.755-1.904-2.223C11.022 15.289 9.573 15 8 15"/>
+                    </svg>
+                    <p>No provider data available</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fraudulent Provider-Physician Pair Table -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 d-flex align-items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" class="bi bi-person-lines-fill me-2" viewBox="0 0 16 16">
+                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-5 2s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H1zM11 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5zm.5 2.5a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1h-4zm2 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2zm0 3a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/>
+              </svg>
+              Top Fraudulent Provider-Physician Pairs
+            </h4>
+            <small class="text-muted">Based on fraud frequency and average claim amount</small>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th class="border-0 text-uppercase text-muted small fw-bold">Provider</th>
+                  <th class="border-0 text-uppercase text-muted small fw-bold">Attending Physician</th>
+                  <th class="border-0 text-uppercase text-muted small fw-bold">Fraud Cases</th>
+                  <th class="border-0 text-uppercase text-muted small fw-bold">Avg. Claim Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in top_fraud_combos %}
+                <tr>
+                  <td>{{ row.Provider }}</td>
+                  <td>{{ row.AttendingPhysician }}</td>
+                  <td><span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2">{{ row.FraudCount }}</span></td>
+                  <td class="fw-bold">${{ "{:,.2f}".format(row.AvgClaim or 0) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="text-center py-5 text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="#dee2e6" class="bi bi-database mb-3" viewBox="0 0 16 16">
+                      <path d="M8 1c-1.573 0-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4s.875 1.755 1.904 2.223C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777C13.125 5.755 14 5.007 14 4s-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1m0 7c-1.573 0-3.022.289-4.096.777C2.875 9.245 2 9.993 2 11s.875 1.755 1.904 2.223C4.978 13.711 6.427 14 8 14s3.022-.289 4.096-.777C13.125 12.755 14 12.007 14 11s-.875-1.755-1.904-2.223C11.022 8.289 9.573 8 8 8m0 7c-1.573 0-3.022.289-4.096.777C2.875 16.245 2 16.993 2 18s.875 1.755 1.904 2.223C4.978 20.711 6.427 21 8 21s3.022-.289 4.096-.777C13.125 19.755 14 19.007 14 18s-.875-1.755-1.904-2.223C11.022 15.289 9.573 15 8 15"/>
+                    </svg>
+                    <p>No fraud pair data available</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chronic Conditions Distribution Chart -->
+  <div class="row mb-5 row-cols-md-1">
+    <div class="col">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 d-flex align-items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0d6efd" class="bi bi-heart-pulse me-2" viewBox="0 0 16 16">
+                <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053.918 3.995.78 5.323 1.508 7H.43c-2.128-5.697 4.165-8.83 7.394-5.857q.09.083.176.171a3 3 0 0 1 .176-.17c3.23-2.974 9.522.159 7.394 5.856h-1.078c.728-1.677.59-3.005.108-3.947C13.486.878 10.4.28 8.717 2.01zM2.212 10h1.315C4.593 11.183 6.05 12.458 8 13.795c1.949-1.337 3.407-2.612 4.473-3.795h1.315c-1.265 1.566-3.14 3.25-5.788 5-2.648-1.75-4.523-3.434-5.788-5"/>
+                <path d="M10.464 3.314a.5.5 0 0 0-.945.049L7.921 8.956 6.464 5.314a.5.5 0 0 0-.88-.091L3.732 8H.5a.5.5 0 0 0 0 1H4a.5.5 0 0 0 .416-.223l1.473-2.209 1.647 4.118a.5.5 0 0 0 .945-.049l1.598-5.593 1.457 3.642A.5.5 0 0 0 12 9h3.5a.5.5 0 0 0 0-1h-3.162z"/>
+              </svg>
+              Chronic Conditions Distribution
+            </h4>
+            <small class="text-muted">Proportion of patients by chronic condition status</small>
+          </div>
+        </div>
+        <div class="card-body text-center p-4">
+          <img src="{{ url_for('static', filename='images/chronic_conditions.png') }}" class="img-fluid rounded border" style="max-height: 600px; width: auto; max-width: 100%; border: 1px solid rgba(0, 0, 0, 0.05);" alt="Chronic Conditions Distribution Chart">
+        </div>
+      </div>
+    </div>
+    <!-- Patient Age Distribution -->
+    <div class="col">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 d-flex align-items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#0d6efd" class="bi bi-person me-2" viewBox="0 0 16 16">
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+              </svg>
+              Patient Age Distribution
+            </h4>
+          </div>
+        </div>
+        <div class="card-body text-center p-4">
+          <img src="{{ url_for('static', filename='images/patient_age_distribution.png') }}" class="img-fluid rounded border" style="max-height: 600px; width: auto; max-width: 100%; border: 1px solid rgba(0, 0, 0, 0.05);" alt="Patient Age Distribution Chart">
+        </div>
+      </div>
+    </div>
+    <!-- Top 20 Attending Physicians vs. Potential Fraud -->
+    <div class="col">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 d-flex align-items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#dc3545" class="bi bi-person-check me-2" viewBox="0 0 16 16">
+                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0M8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/>
+                <path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.267-.86.594-1.85.827-2.25H3c-.001.246-.154.986-.832 1.664C1.516 10.68.289 11.36 0 12c0 1.373 1.333 2.667 4 3z"/>
+              </svg>
+              Top 20 Attending Physicians vs. Potential Fraud
+            </h4>
+          </div>
+        </div>
+        <div class="card-body text-center p-4">
+          <img src="{{ url_for('static', filename='images/physician_fraud.png') }}" class="img-fluid rounded border" style="max-height: 600px; width: auto; max-width: 100%; border: 1px solid rgba(0, 0, 0, 0.05);" alt="Top 20 Attending Physicians vs. Potential Fraud Chart">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #212529;
+  }
+  .container-fluid {
+    max-width: 1400px;
+  }
+  .card {
+    border-radius: 12px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15) !important;
+  }
+  .card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+  }
+  .card-body {
+    padding: 1.5rem;
+  }
+  .card-body.chart-card {
+    padding: 2rem;
+  }
+  .text-primary {
+    color: #0d6efd !important;
+  }
+  .text-muted {
+    color: #6c757d !important;
+  }
+  .table th {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .progress {
+    border-radius: 8px;
+    overflow: visible;
+    background-color: #e9ecef;
+    height: 36px;
+  }
+  .progress-bar {
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: width 0.6s ease;
+  }
+  .badge {
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 8px;
+  }
+  .btn-outline-primary {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+  }
+  .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+  }
+  h1.display-5 {
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  .table-light {
+    background-color: #f8f9fa;
+  }
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+  }
+  @media (max-width: 768px) {
+    .container-fluid {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    h1.display-5 {
+      font-size: 2rem;
+    }
+    .card-body {
+      padding: 1rem;
+    }
+    .card-body.chart-card {
+      padding: 1.5rem;
+    }
+    .table {
+      font-size: 0.875rem;
+    }
+    .img-fluid {
+      max-height: 450px;
+    }
+  }
+</style>
+{% endblock %}

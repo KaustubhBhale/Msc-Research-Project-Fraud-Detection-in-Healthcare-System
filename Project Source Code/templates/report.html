@@ -1,0 +1,137 @@
+// Initialize visualization object
+let currentViz = null;
+
+// Function to update charts
+function updateChart() {
+    const activeTab = $('.nav-tabs .active').attr('id');
+
+    if (activeTab === 'distributions-tab') {
+        updateDistributionChart();
+    } else if (activeTab === 'relationships-tab') {
+        updateRelationshipChart();
+    } else if (activeTab === 'fraud-analysis-tab') {
+        updateFraudAnalysis();
+    }
+}
+
+// Distribution Chart
+function updateDistributionChart() {
+    const variable = $('#dist-variable').val();
+    const chartType = $('input[name="dist-type"]:checked').attr('id');
+    const groupBy = $('#dist-groupby').val();
+
+    $('#chart-title').text(`${variable} Distribution ${groupBy !== 'none' ? 'by ' + groupBy : ''}`);
+
+    showLoading();
+
+    $.get(`/api/distribution_chart?variable=${variable}&chart_type=${chartType}&group_by=${groupBy}`, function(data) {
+        renderChart(data.figure);
+    });
+}
+
+// Relationship Chart
+function updateRelationshipChart() {
+    const xVar = $('#rel-x').val();
+    const yVar = $('#rel-y').val();
+    const colorBy = $('#rel-color').val();
+    const chartType = $('#rel-type').val();
+
+    $('#chart-title').text(`${yVar} vs ${xVar} ${colorBy !== 'none' ? '(Colored by ' + colorBy + ')' : ''}`);
+
+    showLoading();
+
+    $.get(`/api/relationship_chart?x=${xVar}&y=${yVar}&color=${colorBy}&chart_type=${chartType}`, function(data) {
+        renderChart(data.figure);
+    });
+}
+
+// Fraud Analysis
+function updateFraudAnalysis() {
+    const analysisType = $('#fraud-type').val();
+    const metric = $('#fraud-metric').val();
+    const groupSize = $('#fraud-group-size').val();
+
+    let title = '';
+    if (analysisType === 'provider') title = 'Provider Fraud Analysis';
+    if (analysisType === 'physician') title = 'Physician Involvement in Fraud';
+    if (analysisType === 'time') title = 'Temporal Fraud Patterns';
+    if (analysisType === 'demographic') title = 'Demographic Fraud Analysis';
+
+    $('#chart-title').text(title);
+
+    showLoading();
+
+    $.get(`/api/fraud_analysis?type=${analysisType}&metric=${metric}&group_size=${groupSize}`, function(data) {
+        renderChart(data.figure);
+    });
+}
+
+// Helper functions
+function showLoading() {
+    $('#chart-container').html('<div class="d-flex justify-content-center align-items-center" style="height: 100%;"><div class="spinner-border text-primary" role="status"></div></div>');
+}
+
+function renderChart(figure) {
+    if (currentViz) {
+        Plotly.react('chart-container', figure.data, figure.layout);
+    } else {
+        currentViz = Plotly.newPlot('chart-container', figure.data, figure.layout);
+    }
+}
+
+// Initialize on page load
+$(document).ready(function() {
+    // Load stats
+    $.get('/api/eda_stats', function(data) {
+        $('#total-providers').text(data.total_providers.toLocaleString());
+        $('#fraud-cases').text(data.fraud_cases.toLocaleString() + ' (' + data.fraud_percentage + '%)');
+        $('#avg-claim').text('$' + data.avg_claim.toLocaleString(undefined, {maximumFractionDigits: 2}));
+
+        const tableBody = $('#fraud-indicators tbody');
+        tableBody.empty();
+        data.top_indicators.forEach(indicator => {
+            tableBody.append(`
+                <tr>
+                    <td>${indicator.indicator}</td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-danger" role="progressbar"
+                                 style="width: ${indicator.fraud_rate}%"
+                                 aria-valuenow="${indicator.fraud_rate}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                ${indicator.fraud_rate}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>$${indicator.avg_claim.toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
+                    <td>${indicator.cases.toLocaleString()}</td>
+                </tr>
+            `);
+        });
+    });
+
+    // Set up form submissions
+    $('#distributions-form').submit(function(e) {
+        e.preventDefault();
+        updateDistributionChart();
+    });
+
+    $('#relationships-form').submit(function(e) {
+        e.preventDefault();
+        updateRelationshipChart();
+    });
+
+    $('#fraud-form').submit(function(e) {
+        e.preventDefault();
+        updateFraudAnalysis();
+    });
+
+    // Tab change events
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+        updateChart();
+    });
+
+    // Initial chart load
+    updateDistributionChart();
+});

@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+
+{% block title %}Model Evaluation{% endblock %}
+
+{% block content %}
+    <style>
+        h1, h2, h3 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .metrics-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .metric-box {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 22%;
+            min-width: 180px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid #3498db;
+            border: 2px solid #e0e0e0;
+        }
+        .metric-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        .metric-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #7f8c8d;
+        }
+        .metric-box p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .plots-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .plot {
+            width: 45%;
+            text-align: center;
+            margin-bottom: 20px;
+            min-width: 300px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #e0e0e0;
+        }
+        .plot:last-child {
+            width: 90%;
+            min-width: 600px;
+            overflow: auto;
+        }
+        .plot h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #e0e0e0;
+        }
+        .plot:last-child img {
+            min-width: 800px;
+            width: auto;
+            max-width: none;
+            height: auto;
+        }
+        .feature-importance, .classification-report {
+            margin: 30px 0;
+            overflow-x: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 2px solid #e0e0e0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            border: 2px solid #e0e0e0;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #34495e;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        .icon {
+            font-size: 1.2rem;
+        }
+        .shap-container {
+            overflow-x: auto;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .alert {
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            color: #856404;
+        }
+    </style>
+
+    <div class="container mt-4">
+        <h1>
+            <i class="bi bi-graph-up"></i> Fraud Detection Model Evaluation
+        </h1>
+
+        <div class="metrics-container">
+            <div class="metric-box">
+                <h3><i class="bi bi-check-circle"></i> Accuracy</h3>
+                <p>{{ metrics.accuracy|round(3) }}</p>
+            </div>
+            <div class="metric-box">
+                <h3><i class="bi bi-precision"></i> Precision</h3>
+                <p>{{ metrics.precision|round(3) }}</p>
+            </div>
+            <div class="metric-box">
+                <h3><i class="bi bi-arrow-repeat"></i> Recall</h3>
+                <p>{{ metrics.recall|round(3) }}</p>
+            </div>
+            <div class="metric-box">
+                <h3><i class="bi bi-speedometer2"></i> ROC AUC</h3>
+                <p>{{ metrics.roc_auc|round(3) }}</p>
+            </div>
+        </div>
+
+        <div class="feature-importance">
+            <h2 class="section-title">
+                <i class="bi bi-bar-chart-line"></i> Top 5 Feature Importance
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-tags"></i> Feature</th>
+                        <th><i class="bi bi-arrow-up"></i> Importance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in feature_importance.iterrows() %}
+                        <tr>
+                            <td>{{ row.feature }}</td>
+                            <td>{{ row.importance|round(4) }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% if feature_importance.empty %}
+                        <tr>
+                            <td colspan="2">No significant features found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="classification-report">
+            <h2 class="section-title">
+                <i class="bi bi-clipboard-data"></i> Classification Report
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-diagram-3"></i> Class</th>
+                        <th><i class="bi bi-precision"></i> Precision</th>
+                        <th><i class="bi bi-arrow-repeat"></i> Recall</th>
+                        <th><i class="bi bi-activity"></i> F1-Score</th>
+                        <th><i class="bi bi-people"></i> Support</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for class_name, metrics in report.items() if class_name in ['0', '1'] %}
+                        <tr>
+                            <td>{{ class_name }}</td>
+                            <td>{{ metrics.precision|round(3) }}</td>
+                            <td>{{ metrics.recall|round(3) }}</td>
+                            <td>{{ metrics['f1-score']|round(3) }}</td>
+                            <td>{{ metrics.support|round(0) }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="table-primary">
+                        <td><strong><i class="bi bi-check-all"></i> Accuracy</strong></td>
+                        <td colspan="4">{{ report['accuracy']|round(3) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="section-title" style="justify-content: center; margin-top: 40px;">
+            <i class="bi bi-images"></i> Model Performance Visualizations
+        </h2>
+
+        <div class="plots-container">
+            <div class="plot">
+                <h3><i class="bi bi-bezier2"></i> ROC Curve</h3>
+                <img src="data:image/png;base64,{{ roc_plot }}" alt="ROC Curve">
+            </div>
+            <div class="plot">
+                <h3><i class="bi bi-bullseye"></i> Precision-Recall Curve</h3>
+                <img src="data:image/png;base64,{{ pr_plot }}" alt="Precision-Recall Curve">
+            </div>
+            <div class="plot">
+                <h3><i class="bi bi-grid-3x3"></i> Confusion Matrix</h3>
+                <img src="data:image/png;base64,{{ cm_plot }}" alt="Confusion Matrix">
+            </div>
+            <div class="plot">
+                <h3><i class="bi bi-bar-chart-steps"></i> Probability Distribution</h3>
+                <img src="data:image/png;base64,{{ prob_plot }}" alt="Probability Distribution">
+            </div>
+            <div class="plot">
+                <h3><i class="bi bi-box-plot"></i> SHAP Summary</h3>
+                {% if shap_plot %}
+                    <div class="shap-container">
+                        <img src="data:image/png;base64,{{ shap_plot }}" alt="SHAP Summary"
+                             style="min-width: 800px; width: auto; max-width: none; height: auto;">
+                    </div>
+                {% else %}
+                    <div class="alert">SHAP summary plot not available</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

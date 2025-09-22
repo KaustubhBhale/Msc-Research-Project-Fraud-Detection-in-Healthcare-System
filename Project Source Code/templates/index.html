@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Section: Data Preview -->
+<div id="preview" class="content-section" style="display: block;">
+  <h3>Data Preview - Showing first 100 rows of dataset</h3>
+
+  <!-- Wrapper with scrollbars -->
+  <div style="overflow-x: auto;">
+    <table id="dataPreviewTable" class="display nowrap table table-bordered" style="width:100%;">
+      <thead>
+        <tr>
+          {% for col in column_names %}
+            <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in preview_table %}
+        <tr>
+          {% for col in column_names %}
+            <td>{{ row[col] }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Section: Predict Fraud -->
+<div id="predict" class="content-section" style="display: none;">
+  <h2>Predict Fraud</h2>
+  <p>Form or UI to input data and make predictions will go here.</p>
+</div>
+
+<!-- Section: Upload & Batch Analysis -->
+<div id="upload" class="content-section" style="display: none;">
+  <h2>Batch Analysis</h2>
+  <p>Upload a CSV file and process batch predictions.</p>
+</div>
+
+<!-- Section: Model Metrics -->
+<div id="metrics" class="content-section" style="display: none;">
+  <h2>Model Metrics</h2>
+  {% if metrics_graphs %}
+    {{ metrics_graphs|safe }}
+  {% else %}
+    <p>No evaluation graphs available at the moment.</p>
+  {% endif %}
+</div>
+
+<!-- Section: Reporting -->
+<div id="report" class="content-section" style="display: none;">
+  <h2>Reporting</h2>
+  <p>Reports and downloads (PDF, CSV, etc.) will be shown here.</p>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- DataTable Setup -->
+<script>
+  $(document).ready(function () {
+    $('#dataPreviewTable').DataTable({
+      scrollX: true,
+      scrollY: '400px',
+      scrollCollapse: true,
+      paging: true,
+      ordering: true,
+      searching: true,
+      autoWidth: false,
+      dom: '<"top"f><"clear">t<"bottom"ip><"clear">'  // Moves search bar to top, entries to bottom
+    });
+  });
+
+  // Section toggle (for nav links using onclick handlers)
+  function showSection(sectionId) {
+    document.querySelectorAll('.content-section').forEach(function (section) {
+      section.style.display = 'none';
+    });
+    document.getElementById(sectionId).style.display = 'block';
+  }
+</script>
+{% endblock %}
